@@ -8,7 +8,7 @@
 import UIKit
 import Combine
 
-class ViewController: UIViewController {
+class StartViewController: UIViewController {
     // MARK: IBOutlet
     @IBOutlet weak var blogTextField: UITextField!
     @IBOutlet weak var publishButton: UIButton!
