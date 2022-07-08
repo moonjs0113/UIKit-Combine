@@ -73,7 +73,7 @@ class SignupViewController: UIViewController {
     var createButtonSubscriber: AnyCancellable?
     
     private func setup() {
-        title = "Combine Study Signup"
+//        title = "Combine Study Signup"
         
         nameTextField.delegate = self
         passwordTextField.delegate = self
