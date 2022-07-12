@@ -25,32 +25,30 @@ Storyboards를 사용하지 않고, UIKit과 MVVM Pattern을 사용한다.
 Combine: A framework that provides a declarative Swift API for processing values over time
 
 # The Examples
-`Combine` has many possible uses, and we are not constrained when linking `Combine` to `SwiftUI`.
+`Combine`은 용도가 다양하며, `SwiftUI`에 연결할 때는 거의 제약이 없다.
 
 The example code shows instances of:
-
-* Setting up pipelines to lock a `UIButton` until the values entered into a `UITextField` are valid
-* Create a pipeline to perform an asynchronous network call, choosing how and what to update within a view
-* Create a pipeline to adjust the state of a `UIButton` dynamically according to the text in a `UITextField` updating the user interface accordingly
-
-You know what this reminded me of? 
-
-**Material Design!**
+* `UITextField`에 입력된 값이 유효할 때까지 `UIButton`을 잠그도록 pipelines을 설정한다.
+* View 내에서 Update할 방법(how)과 항목(what)을 선택하여 asynchronous network call을 수행할 pipeline을 작성한다.
+* UI를 update하는 `UITextField`의 텍스트에 따라 `UIButton`의 상태를 동적으로(dynamically) 조정하는 pipeline을 만든다.
 
 # The App:
-![app](Movies/app.gif)<br/>
+![app](images/app_Ex2.gif)<br/>
 
-The App has a simple login and a material-design alike interface. When the username and password are entered, the view controller asks the viewmodel to make an API call.
+간단한 login과 material스러운 interface가 있다.
 
-For fun, I made the views have a `xib` file although the project has been created with a `storyboard`, using [this technique](https://medium.com/@stevenpcurtis.sc/using-a-xib-file-with-a-uiview-subclass-d2180615391f).
+사용자 이름과 암호가 입력되면 ViewController는 ViewModel에 API Call을 요청한다.
 
-Each of the following sections focus on the `LoginViewController` - `LoginViewModel` - `LoginView` sections of the App enclosed in the [repo](https://github.com/stevencurtis/SwiftCoding/tree/master/CombineURLSession), but similar ideas are sprinkled through the App as a whole.
+각 sections은 `LoginViewController` - `LoginViewModel` - `LoginView` 에 중점을 둔다.
 
 ## The Detail
 **The View Controller**
-`LoginViewController` is not substantially different from any `UIViewController` that you might write in `UIKit`. 
+`LoginViewController`은 `UIKit`에서 쓰이는 `UIViewController`과 크게 다르지 않다.
 
-Initially I left the cancellable objects `AnyCancellable` as single vars in the project class. The reason that *any* of these exist is that a transaction may be cancelled when the token is `deinitialized` 
+처음에는 아래와 같이 취소 가능한 개체 `AnyCancellable`을 single 변수로 두었다.
+
+Token이 `deinitialized` 될 때, transaction이 취소될 수 있기 때문이다.
+
 ```swift
 var pwSub: AnyCancellable?
 var unSub: AnyCancellable?
@@ -58,9 +56,9 @@ var loginSub: AnyCancellable?
 var animSub: AnyCancellable?
 var validationSub: AnyCancellable?
 ```
-whereas a better approach is to store these subscriptions
-`private var subscriptions = Set<AnyCancellable>()`
-perhaps in an array as shown above, and then the binding can be stored in the array:
+
+<br>
+반면에 더 나은 접근법은 이러한 subscriptions을 `private var subscriptions = Set<AnyCancellable>()`으로 저장하는 것이다.
 
 ```swift
 loginViewModel?.shouldNav
@@ -70,12 +68,16 @@ loginViewModel?.shouldNav
 }) { [weak self] _ in
     let mvc = MainMenuViewController()
     self?.navigationController?.pushViewController(mvc, animated: true)
-}.store(in: &subscriptions)
+}
+.store(in: &subscriptions)
 ```
 
-Noting that I've left the responsibility for navigation to the view controller (which informs the `navigationController`).
+<br>
 
-I've decided to create view model instances that conform to a protocol (indeed, the `UserDataManager()` does the same thing)
+탐색(navigation)에 대한 책임(responsibility)을 ViewController에게 맡기고,ViewController는 `navigationController`에게 알린다.
+
+protocol을 준수하는 view model instances를 생성한다.
+`UserDataManager()`도 동일한 작업을 수행한다.
 
 ```swift
 init(viewModel: LoginViewModelProtocol = LoginViewModel(
@@ -89,7 +91,9 @@ init(viewModel: LoginViewModelProtocol = LoginViewModel(
 }
 ```
 
-on the side of the view model we can bind to a `AnyPublisher<Bool, Never>` in a view model, and the view can be attached accordingly (here updating the `loginButton`).
+<br>
+
+ViewModel 측면에서 ViewModel의 `AnyPublisher<Bool, Never>`에 binding 할 수 있고, View를 적절하게 붙일 수 있다.(여기서 `loginButton` 업데이트)
 
 ```swift
 let validationSub = loginViewModel?.userValidation
@@ -97,13 +101,17 @@ let validationSub = loginViewModel?.userValidation
     .assign(to: \.isEnabled, on: loginView.loginButton)
 ```
 
-likewise we can bind out `UITextField` to a `@Published var username: String = ""` which is situated in the view model.
+<br>
+
+마찬가지로 `UITextField`를 ViewModel에 있는 `@Published var username: String = ""`에 binding 할 수 있다.
 
 ```swift
 loginView.userNameTextField.addTarget(self, action: #selector(self.userNameTextFieldDidChange(_:)), for: .editingChanged)
 ```
 
-which of course links ot the selector as defined:
+<br>
+
+정의된 대로 selector를 연결합니다.
 
 ```swift
 @objc func userNameTextFieldDidChange(_ sender: UITextField) {
