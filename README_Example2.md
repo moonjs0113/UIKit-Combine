@@ -120,14 +120,21 @@ loginView.userNameTextField.addTarget(self, action: #selector(self.userNameTextF
 ```
 
 **The View Model**
-The view model has two `@Published var` which creates a publisher of this type, which can then be accessed through use of the `$` operator. 
+
+ViewModel에는 `$`으로 액세스할 수 있는 `@Published var`타입의 publisher가 두 개 있다. 
 
 ```swift
 @Published var password: String = ""
 @Published var username: String = ""
 ```
 
-Now `validLengthUsername` is defined as the following, where `debounce` is used ensuring we only receive elements when the user pauses or stops typing. `removeDuplicates` ensures that only distinct elements are used.
+<br>
+
+`validLengthUsername`은 아래와 같이 정의된다.
+
+`debounce`는 자용자가 입력을 멈췄을 때만 elements를 receive하도록 한다.
+
+`removeDuplicates`를 사용하면 고유한 elements에만 사용된다.
 
 ```swift
 @Published var username: String = ""
@@ -139,7 +146,9 @@ var validLengthUsername: AnyPublisher<Bool, Never> {
 }
 ```
 
-similarly we check the password
+<br>
+
+비슷하게 password를 확인한다.
 
 ```swift
 var validLengthPassword: AnyPublisher<Bool, Never> {
@@ -150,9 +159,11 @@ var validLengthPassword: AnyPublisher<Bool, Never> {
 }
 ```
 
-and both of these use `eraseToAnyPublisher` to make the `publisher` visible to the downstream `publisher`.
+<br>
 
-To combine the two, `.zip` is used to combine the two operators together, and that's an awesome.
+그리고 `validLengthUsername`와 `validLengthPassword` 모두  `eraseToAnyPublisher`를 사용하여 `publisher`를 downstream `publisher`가 볼 수 있도록 한다.
+
+`.zip`은 두 operators를 합칠 떄 사용하다.
 
 ```swift
 var userValidation: AnyPublisher<Bool, Never> {
@@ -163,9 +174,11 @@ var userValidation: AnyPublisher<Bool, Never> {
 }
 ```
 
-of course this is subscribed to in the view controller (as shown above).
+<br>
 
-Now the `API` calls are made from this view model (actually upon the pressing of a button in the view controller)
+몰론 이건 ViewController에서 subscribed 된다.(위에서 처럼)
+
+실제로 ViewController에서 Button이 눌리면, 이제 ViewModel에서 `API` 호출이 이뤄진다.
 
 ```swift
 func login() {
@@ -188,9 +201,11 @@ func login() {
 }
 ```
 
-This makes use of  `sink` in order to store the token in the keychain, and then send a message back to the view controller using `shouldNavSubject`. 
+<br>
 
-Now this `shouldNavSubject` is an `AnyPublisher<Bool, Never>`  that leverages `PassthroughSubject` which is an operator sitting in between a `Publisher` and `Subscriber`. 
+이건 keychain에 token을 저장하기 위해 `sink`를 사용하고, `shouldNavSubject`를 사용하여 ViewController로 message를 다시 보낸다.
+
+`shouldNavSubject`는 `PassthroughSubject`를 활용하는 `AnyPublisher<Bool, Never>`로 `Publisher`와 `Subscriber` 사이에 있는 operator이다.
 
 ```swift
 private let shouldNavSubject = PassthroughSubject<Bool, Never>()
@@ -200,7 +215,10 @@ var shouldNav: AnyPublisher<Bool, Never> {
 ```
 
 **The HTTPManager**
-Networking is taken care of by a `HTTPManager` as defined below, but the approach that is taken is much like my [basic network manager](https://medium.com/@stevenpcurtis.sc/my-basic-httpmanager-in-swift-db2be1e340c2) in that a `protocol` is used - and the `URLSession` can be swapped out during testing so when we make API calls they aren't actually hitting the `API` (in testing, of course)
+
+Networking은 아래 코드처럼 `HTTPManager`가 관리하지만, Protocol이 사용된다는 점에서 기본적인 network manager와 유사하다.
+
+테스트 중에는 `URLSession`을 swap out할 수 있으므로 `API` 호출 시 실제로 `API`에는 도달하지 않는다.
 
 ```swift
 class HTTPManager<T: URLSessionProtocol> {
@@ -238,7 +256,9 @@ class HTTPManager<T: URLSessionProtocol> {
 }
 ```
 
-The protocol?
+<br>
+
+The protocol
 
 ```swift
 protocol HTTPManagerProtocol {
@@ -255,9 +275,11 @@ protocol HTTPManagerProtocol {
 }
 ```
 
-We can come onto the testing later in this article. 
+후반부에서 테스트를 시작할 수 있다.
 
-Since we are using that `URLSession` that is replaceable during testing. This is quite tricky when using `dataTaskPublisher` - here is the approach to obtain the correct `Output` and `Failure` types by creating a `protocol` that we  get `URLSession`  to conform to, creating a `typealias` that can be returned by the actual class or the mocked version.
+테스트 중에서는 교체할 수 있는 `URLSession`을 사용하기 때문이다.
+
+`dataTaskPublisher`를 사용할 떄 까다로운데, `URLSession`이 준수하는 `protocol`을 만들고 실제 class나 mocked version에서 반환될 수 있는 `typealias`을 만들어 올바른 `Output` 및 `Failure` types을 얻는다.
 
 ```swift
 protocol URLSessionProtocol {
@@ -273,7 +295,8 @@ extension URLSession: URLSessionProtocol {
 ```
 
 ## Testing
-As has been mentioned above, we can mock `URLSession` 
+
+위에서 봤듯 `URLSession`를 mocked version으로 만든다.
 
 ```swift
 class URLSessionMock: URLSessionProtocol {
@@ -299,7 +322,7 @@ class URLSessionMock: URLSessionProtocol {
 }
 ```
 
-which can then be used by a mocked `HTTPManager`
+`HTTPManager`도 mocked version으로 만든다.
 
 ```swift
 class HTTPManagerMock <T: URLSessionProtocol>: HTTPManagerProtocol {
@@ -330,7 +353,7 @@ class HTTPManagerMock <T: URLSessionProtocol>: HTTPManagerProtocol {
 }
 ```
 
-This is then setup in the test classes themselves since we can setup 
+이 설정은 테스트 클래스 자체에서 설정된다.
 
 ```swift
 var lvm: LoginViewModel<HTTPManagerMock<URLSessionMock>>?
@@ -353,13 +376,7 @@ lvm?.validLengthPassword.sink(receiveValue: {res in
 waitForExpectations(timeout: 2.0)
 ```
 
-Which means, crucially, that we don't use a real API call to get data during testing and instead we get the data from a `json` file in the test target - that's a good job all round.
+중요한 점은 테스트 중에 데이터를 얻기 위해 실제 API 호출을 사용하지 않고 테스트 대상의 `json` file에서 데이터를 얻는다는 점이다.
 
 # Conclusion
 This article is a rather useful implementation of `Combine` using `UIKit`, we can see this in this article. 
-
-It is rather complex in the description, but rather easy in the implementation. Take a look at the  attached [Repo](https://github.com/stevencurtis/SwiftCoding/tree/master/CombineURLSession). It is a rather wonderful thing.
-
-People do like [Apple's documentation](https://developer.apple.com/documentation/combine) on this topic. 
-
-If you've any questions, comments or suggestions please hit me up on [Twitter](https://twitter.com/stevenpcurtis) 
