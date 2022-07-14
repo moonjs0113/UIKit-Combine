@@ -21,10 +21,10 @@ class PlaceTableCellViewModel {
     
     init(place: NearbyPlace) {
         self.place = place
-        preparePlaceViewVM()
+        preparePlaceViewModel()
     }
     
-    private func preparePlaceViewVM() {
+    private func preparePlaceViewModel() {
         placeViewModel = PlaceViewModel(place: place)
         placeViewModel.placesViewSelected
             .sink { [weak self] in

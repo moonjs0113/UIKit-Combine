@@ -57,7 +57,8 @@ class PlaceView: UIView {
         
         viewModel.$placeImageUrl.compactMap { URL(string: $0) }
         .sink { [weak self] imageURL in
-            self?.placeImageView.kf.setImage(with: imageURL, placeholder: UIImage(named : "placeIcon"))
+            self?.placeImageView.kf.setImage(with: imageURL,
+                                             placeholder: UIImage(named : "placeIcon"))
         }
         .store(in: &subscriptions)
     }
