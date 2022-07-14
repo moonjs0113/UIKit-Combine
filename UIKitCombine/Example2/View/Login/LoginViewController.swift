@@ -24,9 +24,7 @@ class LoginViewController: UIViewController {
     init(viewModel: LoginViewModelProtocol = LoginViewModel(
         networkManager: HTTPManager(session: URLSession.shared),
         userdatamanager: UserDataManager()
-        )
-    )
-    {
+    )) {
         super.init(nibName: nil, bundle: nil)
         loginViewModel = viewModel
     }

@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="16096" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="jOh-qS-K6p">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="20037" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="jOh-qS-K6p">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16086"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="20020"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
         <!--Home View Controller-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController storyboardIdentifier="Home View Controller" automaticallyAdjustsScrollViewInsets="NO" id="BYZ-38-t0r" customClass="HomeViewController" customModule="Nearby" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="Home View Controller" automaticallyAdjustsScrollViewInsets="NO" id="BYZ-38-t0r" customClass="HomeViewController" customModule="UIKitCombine" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -33,6 +34,7 @@
                                 </connections>
                             </button>
                         </subviews>
+                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="INA-JS-WpO" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="JbJ-38-QuZ"/>
@@ -42,7 +44,6 @@
                             <constraint firstItem="9VA-jw-Yjo" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="24" id="qoN-v8-Se7"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="9VA-jw-Yjo" secondAttribute="trailing" constant="24" id="vxl-LJ-Vj8"/>
                         </constraints>
-                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
                     <navigationItem key="navigationItem" id="Z1C-fP-Ud4"/>
                     <connections>
@@ -56,7 +57,7 @@
         <!--Place List Controller-->
         <scene sceneID="tlU-3C-KmB">
             <objects>
-                <viewController storyboardIdentifier="PlaceListController" id="8pc-Ir-DTr" customClass="PlaceListController" customModule="Nearby" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="PlaceListController" id="8pc-Ir-DTr" customClass="PlaceListController" customModule="UIKitCombine" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="Yy5-RZ-aYp">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -84,6 +85,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                         </subviews>
+                        <viewLayoutGuide key="safeArea" id="aVV-gE-Kml"/>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="W2G-Da-UXb" firstAttribute="top" secondItem="bFD-Q3-QeZ" secondAttribute="bottom" constant="8" id="6kb-g2-EkL"/>
@@ -95,7 +97,6 @@
                             <constraint firstItem="W2G-Da-UXb" firstAttribute="leading" secondItem="bFD-Q3-QeZ" secondAttribute="leading" id="l7S-QQ-Yrc"/>
                             <constraint firstItem="aVV-gE-Kml" firstAttribute="bottom" secondItem="W2G-Da-UXb" secondAttribute="bottom" constant="20" id="ycS-Bp-7z9"/>
                         </constraints>
-                        <viewLayoutGuide key="safeArea" id="aVV-gE-Kml"/>
                     </view>
                     <connections>
                         <outlet property="tableView" destination="W2G-Da-UXb" id="qYO-Uf-aX6"/>
@@ -109,7 +110,7 @@
         <!--Place Detail Controller-->
         <scene sceneID="igb-lD-zfR">
             <objects>
-                <viewController storyboardIdentifier="PlaceDetailController" id="3CL-8K-n3s" customClass="PlaceDetailController" customModule="Nearby" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="PlaceDetailController" id="3CL-8K-n3s" customClass="PlaceDetailController" customModule="UIKitCombine" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="mho-PY-o6F">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -153,7 +154,7 @@
                                     </stackView>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="6jv-HL-jtf">
                                         <rect key="frame" x="0.0" y="37" width="345" height="1"/>
-                                        <color key="backgroundColor" systemColor="systemGray5Color" red="0.8980392157" green="0.8980392157" blue="0.91764705879999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <color key="backgroundColor" systemColor="systemGray5Color"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="1" id="FMU-Dq-Dnk"/>
                                         </constraints>
@@ -200,6 +201,7 @@
                                 </subviews>
                             </stackView>
                         </subviews>
+                        <viewLayoutGuide key="safeArea" id="M89-UP-7xC"/>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="M89-UP-7xC" firstAttribute="bottom" secondItem="vcq-8R-EIB" secondAttribute="bottom" constant="100" id="2EO-IR-n4Z"/>
@@ -214,7 +216,6 @@
                             <constraint firstItem="3Uy-5N-mtn" firstAttribute="top" secondItem="M89-UP-7xC" secondAttribute="top" id="cJ6-7L-793"/>
                             <constraint firstItem="3xn-Ba-Bdc" firstAttribute="leading" secondItem="3Uy-5N-mtn" secondAttribute="trailing" constant="10" id="yYF-KP-cIH"/>
                         </constraints>
-                        <viewLayoutGuide key="safeArea" id="M89-UP-7xC"/>
                     </view>
                     <connections>
                         <outlet property="distanceLabel" destination="P80-Ed-bxI" id="H1u-68-Ho1"/>
@@ -249,5 +250,8 @@
     <resources>
         <image name="backIcon" width="11" height="19"/>
         <image name="refresh" width="410" height="410"/>
+        <systemColor name="systemGray5Color">
+            <color red="0.89803921568627454" green="0.89803921568627454" blue="0.91764705882352937" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
     </resources>
 </document>
