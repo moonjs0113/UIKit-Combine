@@ -37,31 +37,38 @@ class ImageAndLabelCollectionCell: ReusableCollectionViewCell {
     }
     
     private func setUpUI() {
-        guard let viewModel = self.viewModel else { return }
+        guard let viewModel = self.viewModel else {
+            return
+        }
+        
         subscriptions = [
             viewModel.$text.assign(to: \.text, on: textLabel)
         ]
         
         viewModel.$assetName.map {
-            guard let imageName = $0 else { return nil }
-            return UIImage(named: imageName)
+            guard let imageName = $0 else {
+                return nil
+                
             }
+            return UIImage(named: imageName)
+        }
         .assign(to: \.image, on: imageView)
         .store(in: &subscriptions)
         
-        viewModel.$imageURL.compactMap {
-            guard let imageURL = $0 else { return nil }
+        viewModel.$imageURL.compactMap { urlString -> URL? in
+            guard let imageURL = urlString else {
+                return nil
+                
+            }
             return URL(string: imageURL)
         }
         .sink { [weak self] imageURL in
             self?.imageView.kf.setImage(with: imageURL,
-                                        placeholder: UIImage(named : "placeIcon"),
-                                        options: nil,
-                                        progressBlock: nil) { result in
+                                        placeholder: UIImage(named : "placeIcon")) { result in
                 switch result {
-                case .success(let value):
-                        break
-                case .failure(let error):
+                case .success:
+                    break
+                case .failure:
                     self?.imageView.image = UIImage(named : "placeIcon")
                 }
             }

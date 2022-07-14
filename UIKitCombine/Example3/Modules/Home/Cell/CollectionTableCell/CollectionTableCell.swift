@@ -48,12 +48,6 @@ class CollectionTableCell: ReusableTableViewCell {
         collectionView.delegate = self
     }
     
-    private func prepareCollectionView() {
-        ImageAndLabelCollectionCell.registerWithCollectionView(collectionView)
-        collectionView.dataSource = self
-        collectionView.delegate = self
-    }
-    
     private func setUpUI() {
         guard let viewModel = self.viewModel else { return }
         titleLabel.text = viewModel.title

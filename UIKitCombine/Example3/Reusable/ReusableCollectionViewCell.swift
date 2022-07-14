@@ -14,7 +14,7 @@ open class ReusableCollectionViewCell: UICollectionViewCell {
     }
     
     /// Registers the Nib with the provided table
-    public static func registerwithCollectionView(_ collectionView: UICollectionView) {
+    public static func registerWithCollectionView(_ collectionView: UICollectionView) {
         let bundle = Bundle(for: self)
         let nib = UINib(nibName: self.reuseIdentifier, bundle: bundle)
         collectionView.register(nib, forCellWithReuseIdentifier: self.reuseIdentifier)
