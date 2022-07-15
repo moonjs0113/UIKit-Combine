@@ -5,7 +5,8 @@
 
 ![Place Detail](images/PlaceDetail.png)
 
-The view shows the name, location, image, open status, and distance of a place from your location. These details will be supplied from the ViewModel for this view. Let us jump to it:
+PlaceDetail에서는 장소의 이름, 위치, 이미지, 운영상태 및 거리를 표시한다.
+이러한 정보는 `ViewModel`가 `View`에게 전달한다.
 
 ``` swift
 class PlaceDetailViewModel {
@@ -38,9 +39,14 @@ class PlaceDetailViewModel {
 ```
 
 ## **What’s going on here?**
-Your `ViewModel` receives a `NearbyPlace` object which holds all the relevant information for this particular place. The `ViewModel` then configures the outputs. Outputs are the data that is to be displayed on the view. So far everything is going great.
+`ViewModel`은 특정 장소에 대한 모든 정보가 담긴 `NearbyPlace`를 받고, Output을 설정한다.
+Output은 `View`에 표시될 데이터이다.
 
-You may have noticed that all output properties are annotated with the `@Published` keyword. This property wrapper in Combine contains a stored value and its projected value provides users with a Combine publisher, receiving updated values for the property whenever it’s changed. In Swift world, you have to call an update callback or delegate implemented in the view, but in Combine you get it for free!
+모든 Output properties에는 `@Published`로 선언되어 있다.
+
+Combine의 publisher property wrapper는 속성이 변경될 때마다 업데이트된 값을 수신한다.
+
+원래는 Update callback or delegate를 통한 callback을 해야했다.
 
 ## **Configuring the View**
 ``` swift
@@ -88,20 +94,22 @@ class PlaceDetailController: UIViewController {
     
     }
 ```
-Once the view has been loaded, we set up the bindings of our `ViewModel` configured output properties to our UI components.
+`View`가 로드되면 UI components에 대한 `ViewModel` 구성 출력 속성의 Binding을 설정합니다.
 
-Why do we call this binding? Because here you’re not only assigning your UI components to their respective values, you’re also subscribing to any future changes in that property:
+Binding이라 부르는 이유는 UI Components를 해당 값에 할당할 뿐만 아니라 해당 속성의 변경 사항도 subscribing하기 때문이다. 
 
 `assign(to:on:)`
 
-For clarity, we’ve segregated our binding as the ones which can be assigned directly using the `assign(to:on:)` API of combine, which assigns a publisher’s output to a property of an object. If you rewind to our last section’s discussion, we’ve annotated our properties in `ViewModel` with `@Published`. In the binding we’ve used the projected value of a property, using `$propertyname` to assign the underlying publisher to the assignable properties of our UI component. The result of every assignment is an `AnyCancellable` type.
+모든 assignment의 결과는 `AnyCancellable` type이다.
 
-For example, for assigning `$title` to the `text` property of `titleLabel`, we write `viewModel.$title.assign(to: \.text!, on: titleLabel)`.
+`$title`를 `titleLabel`의 `text` property에 할당하기 위해서는 `viewModel.$title.assign(to: \.text!, on: titleLabel)`를 사용한다.
 
-All `AnyCancellable` results are stored in a `subscriptions` set, ensuring that your subscriptions are still in memory to receive any upcoming events.
+모든 `AnyCancellable`의 결과는 메모리에 남아있는 `subscriptions`에 저장시켜 subscriptions가 다음 Events를 수신할 수 있도록 한다.
 
 ## **Custom Assigning**
-For custom handling of attributes, we can use different operators provided by Combine over our `Publishers` , such as `sink(receiveValue:)` and `handleEvents`, to receive the values and work directly on them. In the code snippet above, we used `compactMap` to map the stream of `CLLocation` values from the `$location` publisher to a tuple of `MKCoordinateRegion` and `MKPointAnnotation` followed by `sink` to render the details on the map.
+Attributes의 custom handling을 위해 `sink(receiveValue:)` 및 `handleEvents` 같은 `Publishers`를 통해 Combine에서 제공하는 다양한 operators를 사용하여 값을 수신하고 작업할 수 있다.
+
+위의 code snippet에서는 `compactMap`를 사용하여 `$location` publisher의 `CLLocation` Value 스크림을 `MKCoordinateRegion`과 `MKPointAnnotation`의 Tuple에 mapping한 다음 `sink`를 사용하여 지도에 세부 정보를 렌더링한다.
 
 ## **Passing UI Events to the ViewModel**
 There are times when we need to pass certain UI events to the `ViewModel` for further processes — perhaps an API call, a database query, or something else.
