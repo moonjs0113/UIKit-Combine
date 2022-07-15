@@ -112,11 +112,15 @@ Attributes의 custom handling을 위해 `sink(receiveValue:)` 및 `handleEvents`
 위의 code snippet에서는 `compactMap`를 사용하여 `$location` publisher의 `CLLocation` Value 스크림을 `MKCoordinateRegion`과 `MKPointAnnotation`의 Tuple에 mapping한 다음 `sink`를 사용하여 지도에 세부 정보를 렌더링한다.
 
 ## **Passing UI Events to the ViewModel**
-There are times when we need to pass certain UI events to the `ViewModel` for further processes — perhaps an API call, a database query, or something else.
+API call, a database query 등 추가 프로세스를 위해 특정 UI events를 `ViewModel`에 전달해야할 때가 있다.
 
 ![NearbyHome](images/NearbyHome.png)
 
-The above screen shows the Nearby home page. Certain UI events occur on this view — user taps to refresh the feed, taps on category, taps on any place, etc. These events trigger certain actions in the `ViewModel` , like triggering the API or on the UI itself, in navigation for instance. For our discussion,let’s take a communication where the user taps to refresh data on screen:
+위 화면에서는 피드 새로고침, 카테고리 tap 등 특정 UI Events가 View에서 발생한다.
+
+이러한 이벤트는 API trigger 또는 UI 자체와 같은 `ViewModel`에서 특정 작업을 trigger한다.
+
+사용자가 화면 데이터를 새로 고치는 방법에 대해 알아보자.
 
 ### HomeViewController
 ``` swift
@@ -190,23 +194,22 @@ class HomeViewModel {
     }
 }
 ```
+`PassthroughSubject`를 사용하여 subscribers에게 events를 보낼 수 있습니다.
 
-A `PassthroughSubject` can be used to send events to subscribers of your subject. Think of this as your water supply pipe from which you take your daily water supply.
-
-In our case the `loadDataSubject` is used by the view to send events to the `ViewModel` to load app data from the server. Whenever the user presses on the refresh button or the view loads for the first time we ask the `ViewModel` to load the data. If you closely look at the `attachViewEventListener(loadData: AnyPublisher<Void, Never>)` implemented in the `ViewModel`, we do not actually pass the `loadDataSubject` to the `ViewModel` to receive the event. Rather we type erase the subject to an `AnyPublisher` and send it. An `AnyPublisher` can only be used to receive events and not send events. By using this type erasure we are avoiding any chance of abuse of the `loadDataSubject` from the `ViewModel`.
-
-A similar approach goes for communication between `ViewModel` and `View`. For reloading our list on a successful API fetch, we use `reloadPlaceList: AnyPublisher<Result<Void, NearbyAPIError>, Never>`
+이 경우 `loadDataSubject`는 View에서 Events를 `ViewModel`로 전송하여 server에서 app data를 load하는데 사용된다. 사용자가 새로고침버튼을 누르거나 View 처음 Load 될 때마다 `ViewModel`에 data를 load하도록 요청한다.  `AnyPublisher`는 Event를 수신할 때만 사용할 수 있고 전송할 수는 없다. `eraseToAnyPublisher`를 사용하여 `ViewModel`의 `loadDataSubject`가 남용될 가능성을 피할 수 있다. `ViewModel`와 `View`간의 통신도 이와 비슷하다. 성공적인 API fetch를 위해 `reloadPlaceList: AnyPublisher<Result<Void, NearbyAPIError>, Never>`를 사용한다.
 
 ## **Pain of UIKit and Combine Compatibility**
 ## Missing bindings
-Though we have `assign(to:on:)` which uses the key path to bind a publisher to any property, it lags some major binding functionality as its Rx counterpart `bind(to:)` has. Especially for `UIControl`, there’s no straightforward way to send control events to a `AnyPublisher` property. In our case, we’ve used `PublishSubject` and type erasures to send a button tap event. The community was pretty quick to develop wrappers for missing binding functionality for `UIKit` components.
+Key Path를 사용하여 publisher를 속성에 Binding 하는 `assign(to:on:)`이 있지만, Rx에서 사용되는 `bind(to:)`와 같이 일부 주요 바인딩 기능은 뒤떨어져있다. 특히 `UIControl`의 경우 `AnyPublisher`로 제어 Events를 보내는 단순한 방법이 없다. 이 프로젝트에서도 Button의 Tap Events를 `PublishSubject`과 `eraseToAnyPublisher`를 사용하여 전송했다.
 
 To implement a UIControl binding functionality such as assign, we have to write our own custom publisher which is a lot of overhead for anyone.
 
 Don’t be disheartened. We can still use combine to drive many of our business logic asynchronously and exploit the power of Combine and reactive programming.
 
-## **Property Wrappers and Protocols**
-Property wrappers can not be declared in protocol definitions. You may have noticed, we used our `ViewModel`s directly in the view, using their concrete types. This reduces the scope of the reusability of our views. If we were to abstract out `ViewModel`s and expose our outputs and inputs by protocols, we could not use `@Published` directly in protocol definitions. The reason and the workaround are explained in this blog. Feel free to check that out.
+## Property Wrappers and Protocols
+Protocol에서는 Property wrappers를 못쓴다. `View`에서 `ViewModel`를 직접 사용했기 때문에 `View`의 재사용성이 떨어진다.
+
+[Protocol과 @Published를 함께 쓰는 방법](https://swiftsenpai.com/swift/define-protocol-with-published-property-wrapper/?utm_campaign=AppCoda%20Weekly&utm_medium=email&utm_source=Revue%20newsletter)
 
 ## MVVM Sample
 [MVVM Practice](https://github.com/gabhisekdev/MVVMDiscussion)
