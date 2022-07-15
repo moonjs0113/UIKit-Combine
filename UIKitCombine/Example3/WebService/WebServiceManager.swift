@@ -26,7 +26,7 @@ struct WebServiceConstants {
 
 class WebServiceManager: NSObject {
     
-    static let sharedService = WebServiceManager()
+    static let shared = WebServiceManager()
         
     enum HTTPMethodType: String {
         case POST = "POST"

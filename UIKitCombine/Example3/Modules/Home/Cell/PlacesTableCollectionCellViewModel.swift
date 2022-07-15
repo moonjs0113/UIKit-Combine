@@ -8,7 +8,7 @@
 import Foundation
 import Combine
 
-class PlacesTableCollectionCellVM: TableCollectionCellRepresentable {
+class PlacesTableCollectionCellViewModel: TableCollectionCellRepresentable {
     var numberOfItems: Int = 0
     var title: String = ""
     private var dataModel: PlacesTableCollectionCellModel!

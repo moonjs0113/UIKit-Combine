@@ -10,7 +10,7 @@ import CoreLocation
 
 class LocationManager: NSObject, CLLocationManagerDelegate {
     
-    static let sharedManager = LocationManager()
+    static let shared = LocationManager()
     fileprivate var locationManager: CLLocationManager!
     var latitude: CLLocationDegrees = 12.9139381
     var longitude: CLLocationDegrees = 77.6374695

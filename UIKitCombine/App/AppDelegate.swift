@@ -13,7 +13,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Override point for customization after application launch.
         
         // Example 3
-        LocationManager.sharedManager.initializeLocationManager()
+        LocationManager.shared.initializeLocationManager()
         return true
     }
 

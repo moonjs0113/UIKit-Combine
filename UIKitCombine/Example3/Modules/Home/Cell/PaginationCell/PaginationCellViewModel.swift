@@ -36,15 +36,15 @@ class PaginationCellViewModel {
     
     func viewModelForPlaceView(position: Int) -> PlaceViewModel {
         let place = dataSource[position]
-        let placeViewVM = PlaceViewModel(place: place)
+        let placeViewModel = PlaceViewModel(place: place)
         
-        placeViewVM.placesViewSelected
+        placeViewModel.placesViewSelected
             .sink { [weak self] in
             self?.placeSelectedSubject.send(place)
         }
         .store(in: &subscriptions)
         
-        return placeViewVM
+        return placeViewModel
     }
     
 }

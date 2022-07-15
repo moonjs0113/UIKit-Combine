@@ -35,7 +35,7 @@ class PlaceViewModel: PlaceViewRepresentable {
         placeImageUrl = place.imageURL ?? ""
         name = place.name
         
-        let currentLocation = CLLocation(latitude: LocationManager.sharedManager.latitude, longitude: LocationManager.sharedManager.longitude)
+        let currentLocation = CLLocation(latitude: LocationManager.shared.latitude, longitude: LocationManager.shared.longitude)
         
         if let distance = place.location?.distance(from: currentLocation) {
             self.distance = String(format: "%.2f mi", distance/1609.344)

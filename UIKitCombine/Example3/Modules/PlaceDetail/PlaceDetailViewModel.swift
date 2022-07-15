@@ -32,8 +32,8 @@ class PlaceDetailViewModel {
         location = place.location
         placeImageUrl = place.imageURL ?? ""
         
-        let currentLocation = CLLocation(latitude: LocationManager.sharedManager.latitude,
-                                         longitude: LocationManager.sharedManager.longitude)
+        let currentLocation = CLLocation(latitude: LocationManager.shared.latitude,
+                                         longitude: LocationManager.shared.longitude)
         guard let distance = place.location?.distance(from: currentLocation) else {
             return
         }

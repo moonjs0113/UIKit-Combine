@@ -39,6 +39,9 @@
                                         <rect key="frame" x="0.0" y="102" width="207" height="31"/>
                                         <state key="normal" title="Button"/>
                                         <buttonConfiguration key="configuration" style="plain" title="Example3"/>
+                                        <connections>
+                                            <segue destination="PN7-X8-4sh" kind="show" id="sdI-rZ-0iT"/>
+                                        </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="FNl-7d-oVe">
                                         <rect key="frame" x="0.0" y="153" width="207" height="31"/>
@@ -70,6 +73,16 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="BXJ-iG-CHu" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="526" y="131"/>
+        </scene>
+        <!--Example3-->
+        <scene sceneID="jv0-5k-gPh">
+            <objects>
+                <viewControllerPlaceholder storyboardName="Example3" id="PN7-X8-4sh" sceneMemberID="viewController">
+                    <navigationItem key="navigationItem" id="eZ9-o9-3tB"/>
+                </viewControllerPlaceholder>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="tde-uF-PGY" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="586" y="432"/>
         </scene>
     </scenes>
     <resources>

@@ -18,7 +18,7 @@ class ActivityIndicator {
         activityIndicator.startAnimating()
         activityIndicator.center = spinnerView.center
         
-        DispatchQueue.main.sync { [weak self] in
+        DispatchQueue.main.async { [weak self] in
             guard let _self = self else {
                 return
             }

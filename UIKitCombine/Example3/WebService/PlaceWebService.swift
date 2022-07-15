@@ -21,12 +21,12 @@ struct PlaceWebService {
     }
     
     func fetchPlaceList(placeType: PlaceType) -> AnyPublisher<[NearbyPlace], NearbyAPIError> {
-        let userLat = String(format:"%3f", LocationManager.sharedManager.latitude)
-        let userLong = String(format:"%3f", LocationManager.sharedManager.longitude)
+        let userLat = String(format:"%3f", LocationManager.shared.latitude)
+        let userLong = String(format:"%3f", LocationManager.shared.longitude)
 
         let url = WebServiceConstants.baseURL + WebServiceConstants.placesAPI + "location=\(userLat),\(userLong)&radius=1000&type=\(placeType.rawValue)&key=\(googleApiKey)"
 
-        let placeResponsePublisher: AnyPublisher<PlacesResponse, NearbyAPIError> = WebServiceManager.sharedService.requestAPI(url: url)
+        let placeResponsePublisher: AnyPublisher<PlacesResponse, NearbyAPIError> = WebServiceManager.shared.requestAPI(url: url)
     
         return placeResponsePublisher.print("\n fetch web service")
             .map { $0.places }
