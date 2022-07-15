@@ -1,546 +1,204 @@
-# Getting Started with Combine
-[Intro README](/Intro_Example1.md)
+# How to Use UIKit With MVVM and Combine
+![MVVM](images/MVVM.png)
 
-## What is Combine?
+## **Configuring the ViewModel**
 
-[Combine](https://developer.apple.com/documentation/combine) is a unified Swift API framework for processing events over time. What kind of events? Mostly **asynchronous** one. Kind kind that fire continuously as our applications are running, making us want to update our UI.
+![Place Detail](images/PlaceDetail.png)
 
-- Target/Action
-- Notification center
-- URLSession
-- Key-Value observing (KVO)
-- Ad-hoc callbacks
+The view shows the name, location, image, open status, and distance of a place from your location. These details will be supplied from the ViewModel for this view. Let us jump to it:
 
-Combine은 이러한 모든 이벤트를 하나의 흐름 체인으로 스트리밍한 다음 해당 이벤트를 조작할 수 있도록 지원합니다.   
-로직을 추가하고 결과를 결정한 다음 최종적으로 UI를 업데이트할 위치와 방법을 결정합니다.
-
-## Where would I use it?
-
-Let's say we are building user registration app. And before a wizard can create an account we need to check that:
-
-- the user's name is unique (asynchronous call to backend server)
-- they have entered a valid password, and
-- they have correctly entered the repeat password twice
-
-There is a lot of asynchronous eventing going on here.   
-1. 사용자가 target-action을 통해 TextField를 탭할 때 수신을 대기해야 한다.   
-2. 사용자가 키를 입력할 떄마다 백엔드를 호출할 수는 없다. 따라서 타이머를 설정하고 몇 초마다 요청을 보낼지 정해야한다.  
-3. 다음 KVO(Key Value Observing)를 사용하여 사용자 필드의 값이 변경되었음을 스스로 알리고 추가 처리 로직을 실행하여 다른 조건이 충족되었는지 확인할 수 있습니다.
-
-![](images/without.png)
-
-Combine이 하는 일은 이 모든 다양한 이벤트, 논리 및 타이밍을 하나의 스트림으로 결합하는 것입니다.
-
-that we can query, and ask: "Have all these conditions been met."
-
-![](images/with.png)
-
-- `URLSession`에 대한 비동기 호출 결과를 수신 대기할 수 있습니다.
-- username, password, and repeat password 필드의 유효성 검사 결과(validation results)를 병합할 수 있습니다.
-- 해당 결과를 사용하여 KVC(Key Value Coding)를 통해 Create Account 버튼의 상태를 업데이트할 수 있습니다.
-
-## How does it work?
-
-In this simple example we will use Combine to:
-
-- update a label
-- when a button is pressed
-- with the contents of the text field
-
-![](images/simple.png)
-
-Combine is built around three main abstractions:
-
-- Publishers
-- Operators, and
-- Subscribers
-
-### Publishers
-
-Publishers는 우리가 받고자(receiving) 하는 events를 publish하거나 fire합니다.
-
-예를 들어, 새로운 글이 입력(published)될 때마다 알림(notification)을 받고 싶다고 가정해보자. `NotificationCenter` 기반의 publisher를 만든 뒤 publish Button을 누르면 바로 실행(fire)할 수 있다
-
-```swift
-extension Notification.Name {
-    static let newBlogPost = Notification.Name("newPost")
-}
-
-struct BlogPost {
-    let title: String
-}
-
-// Create a publisher
-let publisher = NotificationCenter.Publisher(center: .default, name: .newBlogPost, object: nil)
- .map { (notification) -> String? in
-     return (notification.object as? BlogPost)?.title ?? ""
-}
-```
-
-### Operators
-
-Operators는 publishers의 output를 가져와서, String처럼 downstream subscribers가 이해할 수 있는 다른 data types으로 변환한다. 
-
-<img src="images/operators.png" width="600" />
-
-Operators는 `map`처럼 closure를 사용해서 publishers에서 사용할 수 있다.
-
-```swift
-.map { (notification) -> String? in
-     return (notification.object as? BlogPost)?.title ?? ""
-}
-```
-
-### Subscribers
-
-publishers와 operators를 mapping하면, subscribe할 준비가 된다.
-
-Subscription은 2단계로 이뤄진다.
-1. subscriber를 만든다.
-2. publisher를 subscribe하게 한다.
-
-```swift
-// Create a subscriber
-let subscriber = Subscribers.Assign(object: subscribedLabel, keyPath: \.text)
-publisher.subscribe(subscriber)
-```
-
-### Fire the event
-
-사용자가 버튼을 누르면, notification을 publish 할 수 있다.
-
-TextField에서 Text를 가져와서 BlogPost를 만들고, NotificationCenter를 통해 게시(fire)하면 Label이 업데이트된다.
-
-```swift
-@objc func publishButtonTapped(_ sender: UIButton) {
-    // Post the notification
-    let title = blogTextField.text ?? "Coming soon"
-    let blogPost = BlogPost(title: title)
-    NotificationCenter.default.post(name: .newBlogPost, object: blogPost)
-}
-```
-
-![](images/demo.gif)
-
-
-### Source
-
-**ViewController.swift**
-
-```swift
-import UIKit
-import Combine
-
-extension Notification.Name {
-    static let newBlogPost = Notification.Name("newPost")
-}
-
-struct BlogPost {
-    let title: String
-}
-
-class ViewController: UIViewController {
-
-    @IBOutlet var blogTextField: UITextField!
-    @IBOutlet var publishButton: UIButton!
-    @IBOutlet var subscribedLabel: UILabel!
+``` swift
+class PlaceDetailViewModel {
+    // MARK: Output
+    @Published private(set) var title = ""
+    @Published private(set) var distance = ""
+    @Published private(set) var isOpen = false
+    @Published private(set) var placeImageUrl: String = ""
+    @Published private(set) var location: CLLocation? = nil
     
-    override func viewDidLoad(  ) {
-        super.viewDidLoad()
-
-        publishButton.addTarget(self, action: #selector(publishButtonTapped), for: .primaryActionTriggered)
+    private let place: NearbyPlace
+    
+    init(place: NearbyPlace) {
+        self.place = place
+        configureOutput()
+    }
+    
+    private func configureOutput() {
+        title = place.name
+        let openStat = place.openStatus ?? false
+        isOpen = openStat
+        location = place.location
+        placeImageUrl = place.imageURL ?? ""
         
-        // Create a publisher
-        let publisher = NotificationCenter.Publisher(center: .default, name: .newBlogPost, object: nil)
-         .map { (notification) -> String? in
-             return (notification.object as? BlogPost)?.title ?? ""
-         }
-        
-        // Create a subscriber
-        let subscriber = Subscribers.Assign(object: subscribedLabel, keyPath: \.text)
-        publisher.subscribe(subscriber)
-    }
-    
-    @objc func publishButtonTapped(_ sender: UIButton) {
-        // Post the notification
-        let title = blogTextField.text ?? "Coming soon"
-        let blogPost = BlogPost(title: title)
-        NotificationCenter.default.post(name: .newBlogPost, object: blogPost)
+        let currentLocation = CLLocation(latitude: LocationManager.sharedManager.latitude, longitude: LocationManager.sharedManager.longitude)
+        guard let distance = place.location?.distance(from: currentLocation) else { return }
+        self.distance = String(format: "%.2f mi", distance/1609.344)
     }
 }
 ```
 
-## The @Published Attribute
+## **What’s going on here?**
+Your `ViewModel` receives a `NearbyPlace` object which holds all the relevant information for this particular place. The `ViewModel` then configures the outputs. Outputs are the data that is to be displayed on the view. So far everything is going great.
 
-![](images/published.png)
+You may have noticed that all output properties are annotated with the `@Published` keyword. This property wrapper in Combine contains a stored value and its projected value provides users with a Combine publisher, receiving updated values for the property whenever it’s changed. In Swift world, you have to call an update callback or delegate implemented in the view, but in Combine you get it for free!
 
-`NotificationCenter`를 통해 events를 수동으로 실행(firing)하는 것도 Combine을 통해 events를 publish 할 수 있는 방법이다.
-
-다른 하나는 `@Published`를 활용하는 것이다.
-
-### Define your publishers
-
-`@Published`는 지정된 property에 publisher를 추가하는 property wrapper다. 
-
-```swift
-@Published private var acceptedTerms = false
-@Published private var acceptedPrivacy = false
-@Published private var name = ""
-```
-
-tracking하려는 state properties에 붙이면, 해당 속성을 직접 publish 할 수 있다. 또한 상태(State)가 바뀔 때마다 messages를 emit한다. 
-
-### Combine publishers into a stream
-
-AnyPublisher를 정의하면, 하나의 간단한 publisher stream을 결합할 수 있다.
-
-```swift
-private var validToSubmit: AnyPublisher<Bool, Never> {
-    return Publishers.CombineLatest3($acceptedTerms, $acceptedPrivacy, $name)
-        .map { terms, privacy, name in
-            return terms && privacy && !name.isEmpty
-        }.eraseToAnyPublisher()
-}
-```
-
-publisher는 세 가지 properities를 가져와서 binding `$`를 통해 속성에 accesses한 다음 `map` operator로 output을 하나의 `Bool`로 결합하여 return한다.
-
-`eraseToAnyPublisher`는 map api을 `<Bool, Never>` api로 변환하여, mapping 내부를 노출시키지 않는다.
-
-### Define your subscribers
-
-class based technology이기에 memory leaks을 신경써야한다.   
-`AnyCancellable`를 정의함으로써 view controller가 사라질 때, subscriber도 정리(ensure)된다.
-
-```
-private var buttonSubscriber: AnyCancellable?
-```
-
-### Subscribe
-
-다음과 같이 subscriber를 publisher에 연결한다. 
-
-```swift
-buttonSubscriber = validToSubmit
-    .receive(on: RunLoop.main)
-    .assign(to: \.isEnabled, on: submitButton)
-```
-
-publisher stream인 `validToSubmit`을 가져오면
-
-- `.receive(on: RunLoop.main)` : UI의 main thread가 차단(block)되지 않았는지 확인 
-- `.assign(to: \.isEnabled, on: submitButton)` button의 `isEnabled` 속성에 `Bool` 결과값을 할당(assign)한다.
-
-publisher stream의 출력을 control(button)의 한 상태로 mapping한다.
-
-![](images/tcdemo.gif)
-
-**ViewController.swift**
-
-```swift
-//
-//  ViewController.swift
-//  TermsAndConditions
-//
-//  Created by jrasmusson on 2021-05-21.
-//
-
-import UIKit
-import Combine
-
-class ViewController: UIViewController {
-
-    @IBOutlet var acceptedSwitch: UISwitch!
-    @IBOutlet var privacySwitch: UISwitch!
-    @IBOutlet var nameField: UITextField!
-    @IBOutlet var submitButton: UIButton!
+## **Configuring the View**
+``` swift
+class PlaceDetailController: UIViewController {
+    private var subscriptions = Set<AnyCancellable>()
     
-    // Define publishers
-    @Published private var acceptedTerms = false
-    @Published private var acceptedPrivacy = false
-    @Published private var name = ""
-    
-    // Combine publishers into single stream
-    private var validToSubmit: AnyPublisher<Bool, Never> {
-        return Publishers.CombineLatest3($acceptedTerms, $acceptedPrivacy, $name)
-            .map { terms, privacy, name in
-                return terms && privacy && !name.isEmpty
-            }.eraseToAnyPublisher()
-    }
-
-    // Define subscriber
-    private var buttonSubscriber: AnyCancellable?
+    private var viewModel: PlaceDetailViewModel!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        nameField.delegate = self
+        setupBindings()
+    }
+    
+    private func setupBindings() {
+        // Properties that can be assigned using default assign method
+        subscriptions = [
+            viewModel.$title.assign(to: \.text!, on: titleLabel),
+            viewModel.$distance.assign(to: \.text!, on: distanceLabel),
+            viewModel.$isOpen.map { $0.openStatusText }.assign(to: \.text!, on: openStatusLabel),
+            viewModel.$isOpen.map { $0 ? UIColor.green : UIColor.red }.assign(to: \.textColor!, on: openStatusLabel)
+        ]
         
-        // Hook subscriber up to publisher
-        buttonSubscriber = validToSubmit
-            .receive(on: RunLoop.main)
-            .assign(to: \.isEnabled, on: submitButton)
+        // Properties require custom assigning
+        viewModel.$placeImageUrl.compactMap { URL(string: $0) }
+        .sink { [weak self] imageURL in
+            self?.placeImageView.kf.setImage(with: imageURL, placeholder: UIImage(named : "placeIcon"), options: nil, progressBlock: nil, completionHandler: { (image, error, cacheType, url) in
+                })
+        }
+        .store(in: &subscriptions)
+        
+        viewModel.$location.compactMap { location -> (MKCoordinateRegion, MKPointAnnotation)? in
+            guard let lat = location?.coordinate.latitude,
+                let long = location?.coordinate.longitude else { return nil }
+            let center = CLLocationCoordinate2D(latitude: lat, longitude: long)
+            let region = MKCoordinateRegion(center: center, span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01))
+            
+            let annotation = MKPointAnnotation()
+            annotation.coordinate = center
+            return (region, annotation)
+        }.sink { [weak self] location in
+            self?.mapView.setRegion(location.0, animated: true)
+            self?.mapView.addAnnotation(location.1)
+        }.store(in: &subscriptions)
     }
     
-    @IBAction func acceptTerms(_ sender: UISwitch) {
-        acceptedTerms = sender.isOn
     }
-    
-    @IBAction func acceptPrivacy(_ sender: UISwitch) {
-        acceptedPrivacy = sender.isOn
-    }
-    
-    @IBAction func nameChanged(_ sender: UITextField) {
-        name = sender.text ?? ""
-    }
-    
-    @IBAction func submitAction(_ sender: UIButton) {
-    }
-}
+```
+Once the view has been loaded, we set up the bindings of our `ViewModel` configured output properties to our UI components.
 
-extension ViewController: UITextFieldDelegate {
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        textField.resignFirstResponder()
-        return true;
+Why do we call this binding? Because here you’re not only assigning your UI components to their respective values, you’re also subscribing to any future changes in that property:
+
+`assign(to:on:)`
+
+For clarity, we’ve segregated our binding as the ones which can be assigned directly using the `assign(to:on:)` API of combine, which assigns a publisher’s output to a property of an object. If you rewind to our last section’s discussion, we’ve annotated our properties in `ViewModel` with `@Published`. In the binding we’ve used the projected value of a property, using `$propertyname` to assign the underlying publisher to the assignable properties of our UI component. The result of every assignment is an `AnyCancellable` type.
+
+For example, for assigning `$title` to the `text` property of `titleLabel`, we write `viewModel.$title.assign(to: \.text!, on: titleLabel)`.
+
+All `AnyCancellable` results are stored in a `subscriptions` set, ensuring that your subscriptions are still in memory to receive any upcoming events.
+
+## **Custom Assigning**
+For custom handling of attributes, we can use different operators provided by Combine over our `Publishers` , such as `sink(receiveValue:)` and `handleEvents`, to receive the values and work directly on them. In the code snippet above, we used `compactMap` to map the stream of `CLLocation` values from the `$location` publisher to a tuple of `MKCoordinateRegion` and `MKPointAnnotation` followed by `sink` to render the details on the map.
+
+## **Passing UI Events to the ViewModel**
+There are times when we need to pass certain UI events to the `ViewModel` for further processes — perhaps an API call, a database query, or something else.
+
+![NearbyHome](images/NearbyHome.png)
+
+The above screen shows the Nearby home page. Certain UI events occur on this view — user taps to refresh the feed, taps on category, taps on any place, etc. These events trigger certain actions in the `ViewModel` , like triggering the API or on the UI itself, in navigation for instance. For our discussion,let’s take a communication where the user taps to refresh data on screen:
+
+### HomeViewController
+``` swift
+// HomeViewController
+class HomeViewController: UIViewController {
+    private var subscriptions = Set<AnyCancellable>()
+    private var loadDataSubject = PassthroughSubject<Void,Never>()
+    private var viewModel = HomeViewModel()
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        prepareTableView()
+        setupBinding()
+        loadDataSubject.send()
+    }
+    
+    private func setupBinding() {
+        viewModel.attachViewEventListener(loadData: loadDataSubject.eraseToAnyPublisher())
+        viewModel.reloadPlaceList
+            .sink(receiveCompletion: { completion in
+                // Handle the error
+            }) { [weak self] _ in
+                ActivityIndicator.sharedIndicator.hideActivityIndicator()
+                self?.tableView.reloadData()
+        }
+        .store(in: &subscriptions)
+    }
+    
+    @IBAction func refreshButtonPressed(_ sender: Any) {
+        ActivityIndicator.sharedIndicator.displayActivityIndicator(onView: view)
+        loadDataSubject.send()
     }
 }
 ```
 
-## Back to Signup View
-
-![](images/wizard.png)
-
-다양한 publication stream과를 조합하고, UI control의 Single state에 binding할 수 있는 방법을 볼 수 있어야한다.
-
-`@Published`를 붙여 시작한다.
-
-```swift
-@Published var password = ""
-@Published var passwordAgain = ""
-@Published var username: String = ""
-```
-
-그런 다음 `UITextFieldDelegate`를 통해 각 TextField에서 입력이 변경될 때, 속성의 상태를 설정하거나 변경한다. 
-
-```swift
-extension ViewController: UITextFieldDelegate {
-    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        let textFieldText = textField.text ?? ""
-        let text = (textFieldText as NSString).replacingCharacters(in: range, with: string)
-        
-        if textField == nameTextField { username = text }
-        if textField == passwordTextField { password = text }
-        if textField == repeatTextField { passwordAgain = text }
-        
-        return true
-    }
-}
-```
-
-### Validating the username
-
-사용자 이름이 변경되면, backend service를 asynchronously하게 call하여 username이 사용 가능한지 확인하려 한다.
-
-```swift
-var validatedUsername: AnyPublisher<String?, Never> {
-    return $username
-        .debounce(for: 0.5, scheduler: RunLoop.main)
-        .removeDuplicates()
-        .flatMap { username in
-            return Future { promise in
-                self.usernameAvailable(username) { available in
-                    promise(.success(available ? username : nil))
-                }
+### HomeViewModel
+``` swift
+// HomeViewModel
+class HomeViewModel {
+  var reloadPlaceList: AnyPublisher<Result<Void, NearbyAPIError>, Never> {
+        reloadPlaceListSubject.eraseToAnyPublisher()
+   }
+  
+  // MARK: Input
+    private var loadData: AnyPublisher<Void, Never> = PassthroughSubject<Void, Never>().eraseToAnyPublisher()
+    private let reloadPlaceListSubject = PassthroughSubject<Result<Void, NearbyAPIError>, Never>()
+  
+    func attachViewEventListener(loadData: AnyPublisher<Void, Never>) {
+        self.loadData = loadData
+        self.loadData
+            .setFailureType(to: NearbyAPIError.self)
+            .handleEvents(receiveOutput: { [weak self] _ in
+                self?.allPlaces.removeAll()
+            })
+            .flatMap { _ -> AnyPublisher<[NearbyPlace], NearbyAPIError> in
+                let placeWebservice = PlaceWebService()
+                return placeWebservice
+                    .fetchAllPlaceList()
             }
-        }
-        .eraseToAnyPublisher()
-}
-```
-
-validation publisher는 `$username`에 바인딩하여, 이를 통해 stream에서 처리할 수 있다.
-
-사용자가 새 키를 입력할 떄마다 backend call로 가득 차는 것을 방지해야한다.
-
-이 기능을 `debounce`라고 하는데 `0.5`로 설정하면 main thread에서 실행된느 동안 0.5초마다 call을 제한한다. 
-
-```swift
-.debounce(for: 0.5, scheduler: RunLoop.main)
-```
-
-사용자가 debounce 시간 내에 동일한 사용자 이름을 입력하면 다시 확인하는 의미가 없으므로 중복 항목을 제거해야한다. 
-
-```swift
-.removeDuplicates()
-```
-
-이제 asynchronous events를 처리해야한다.
-
-서버로부터 password가 유효한지 알아내야한다. 이를 위해 `usernameAvailable()`라는 기능이 있다.
-
-```swift
-func usernameAvailable(_ username: String, completion: (Bool) -> Void) {
-    completion(true) // Our fake asynchronous backend service
-}
-```
-
-backend service를 이용하는 척하면서 유효한 반환값 `true`를 잘라내거나 속이는 것이다.
-
-이 `true`는 TextField에 있는 `username` 원본을 반환하기 위해 `Future`와 `Promise`에서 사용할 수 있는 Closure에서 Bool로 반환된다.
-
-```swift
-return Future { promise in
-    self.usernameAvailable(username) { available in
-        promise(.success(available ? username : nil))
+            .receive(on: DispatchQueue.main)
+            .handleEvents(receiveOutput: { [weak self] _ in
+                self?.tableDataSource.removeAll()
+            })
+            .sink(receiveCompletion: { _ in },
+              receiveValue: { [weak self] places in
+                self?.allPlaces.append(contentsOf: places)
+                self?.prepareTableDataSource()
+                self?.reloadPlaceListSubject.send(.success(()))
+            })
+            .store(in: &subscriptions)
     }
 }
 ```
 
-`Promise`는 `Success` or `Failure`를 반환할 수 있는 Swift의 `Result`이다.
+A `PassthroughSubject` can be used to send events to subscribers of your subject. Think of this as your water supply pipe from which you take your daily water supply.
 
-그런 다음 내부 정보를 숨기고 모든 사용자가 사용할 수 있도록 하려면 '.eraseToAnyPublisher()로 끝낸다.
+In our case the `loadDataSubject` is used by the view to send events to the `ViewModel` to load app data from the server. Whenever the user presses on the refresh button or the view loads for the first time we ask the `ViewModel` to load the data. If you closely look at the `attachViewEventListener(loadData: AnyPublisher<Void, Never>)` implemented in the `ViewModel`, we do not actually pass the `loadDataSubject` to the `ViewModel` to receive the event. Rather we type erase the subject to an `AnyPublisher` and send it. An `AnyPublisher` can only be used to receive events and not send events. By using this type erasure we are avoiding any chance of abuse of the `loadDataSubject` from the `ViewModel`.
 
-해당 이벤트 처리는 아래 그림처럼 보인다.
+A similar approach goes for communication between `ViewModel` and `View`. For reloading our list on a successful API fetch, we use `reloadPlaceList: AnyPublisher<Result<Void, NearbyAPIError>, Never>`
 
-![](images/future.png)
+## **Pain of UIKit and Combine Compatibility**
+## Missing bindings
+Though we have `assign(to:on:)` which uses the key path to bind a publisher to any property, it lags some major binding functionality as its Rx counterpart `bind(to:)` has. Especially for `UIControl`, there’s no straightforward way to send control events to a `AnyPublisher` property. In our case, we’ve used `PublishSubject` and type erasures to send a button tap event. The community was pretty quick to develop wrappers for missing binding functionality for `UIKit` components.
 
-### Validating the password
+To implement a UIControl binding functionality such as assign, we have to write our own custom publisher which is a lot of overhead for anyone.
 
-```swift
-var validatedPassword: AnyPublisher<String?, Never> {
-    return Publishers.CombineLatest($password, $passwordAgain)
-        .map { password, passwordRepeat in
-            guard password == passwordRepeat, password.count > 0 else { return nil }
-            return password
-        }
-        .map {
-            ($0 ?? "") == "password1" ? nil : $0
-        }
-        .eraseToAnyPublisher()
-}
-```
+Don’t be disheartened. We can still use combine to drive many of our business logic asynchronously and exploit the power of Combine and reactive programming.
 
-암호의 유효성을 검사할 때 암호가 올바른 경우 문자열로 암호를 반환하고, 일치하지 않거나 암호가 잘못된 경우 nil을 반환한다. 
+## **Property Wrappers and Protocols**
+Property wrappers can not be declared in protocol definitions. You may have noticed, we used our `ViewModel`s directly in the view, using their concrete types. This reduces the scope of the reusability of our views. If we were to abstract out `ViewModel`s and expose our outputs and inputs by protocols, we could not use `@Published` directly in protocol definitions. The reason and the workaround are explained in this blog. Feel free to check that out.
 
-먼저 publisher signature을 정의한다.
-
-```swift
-var validatedPassword: AnyPublisher<String?, Never> { .. }
-```
-
-그런 다음 우리가 검증하고자 하는 published properties을 결합한다.
-
-```swift
-var validatedPassword: AnyPublisher<String?, Never> {
-    return Publishers.CombineLatest($password, $passwordAgain)
-```
-
-'$password' TextField와 '$passwordAgain' TextField의 값을 결합하고 이러한 필드가 변경될 때마다 publisher에게 호출하도록 한다. 이 방법을 `CombineLatest`라고 한다. 
-
-두 개의 암호 필드가 있으면 해당 필드에 대해 자유롭게 처리할 수 있다.
-
-먼저 두 필드 값이 동일한지 확인한 다음 암호의 길이가 1 이상인지 확인한다.
-
-그리고 유효한 경우에는 password을 반환하고 ,그렇지 않은 경우에는 nil을 반환한다.
-
-
-```swift
-.map { password, passwordRepeat in
-    guard password == passwordRepeat, password.count > 0 else { return nil }
-    return password
-}
-```
-
-그런 로직의 결과를 publisher의 다음 비트로 전달하면, 다시 `map`연산자를 사용하여 사용자가 사용하지 않는 일반적인 암호와 동일한지 확인한다.
-
-만약 `password1`와 동일하면 `nil`을 반환하고, 아니면 계속해서 전달된 암호를 반환한다. 
-
-```swift
-.map {
-    ($0 ?? "") == "password1" ? nil : $0
-}
-```
-
-여기까지 왔으면 validation publisher가 users password가 반환된다. 
-
-### Combining the results
-
-사용자 이름을 검증하고 유효한 암호가 있는지 확인했으므로 이 두 검증 결과를 결합하여 유효한 사용자 이름과 암호를 다음과 같은 Tuple 형식으로 반환할 수 있다.
-
-```swift
-var validatedCredentials: AnyPublisher<(String, String)?, Never> {
-    return Publishers.CombineLatest(validatedUsername, validatedPassword)
-        .receive(on: RunLoop.main)
-        .map { username, password in
-            guard let uname = username, let pwd = password else { return nil }
-            return (uname, pwd)
-        }
-        .eraseToAnyPublisher()
-}
-```
-
-여기서 publisher가 두 개의 String을 절대 실패하지 않는 Optional Tuple로서 반환한다고 말하고 있다.
-
-```swift
-var validatedCredentials: AnyPublisher<(String, String)?, Never> { ... }
-```
-
-다른 두 검증의 결과를 결합하고, 그들의 반환값을 추출하여 사용할 수 있다.
-
-```swift
-return Publishers.CombineLatest(validatedUsername, validatedPassword)
-    .receive(on: RunLoop.main)
-    .map { username, password in
-        guard let uname = username, let pwd = password else { return nil }
-        return (uname, pwd)
-}
-```
-
-`validatedUsername`은 `username`에 `validatedPassword`은 `password`으로 `map` operator에 전달된다.
-
-`map` operator는 전달된 값이 nil이 아닌지 확인하고, 아닌 경우 tuple `(uname, pwd)`로 반환한다.
-
-### Binding the result of all this to our control
-
-버튼을 활성화해야 할지 비활성화해야 할지 결정하기 위해 이 검증 결과를 사용한다.
-
-```swift
-createButtonSubscriber = validatedCredentials
-    .map { $0 != nil }
-    .receive(on: RunLoop.main)
-    .assign(to: \.isEnabled, on: createButton)
-```
-
-`validatedCredentials`의 값은 TextField의 username와 passwords를 포함하는 tuple이다.
-
-우리는 이 값이 nil인지 아닌지만 보면된다.
-
-```swift
-    .map { $0 != nil }
-```
-
-따라서 `nil`이 아니라는 것을 확실히 할 수 있고, UIKit control에 Binding되어 있기 때문에 mainloop에서 이 값을 받고 nil이 아닌 값을 `createButton`의 `isEnabled`속성에 할당한다.  
-
-```swift
-    .assign(to: \.isEnabled, on: createButton)
-```
-
-
-### Summary
-
-So that's Combine in a nutshell. In summary, the takeaways here are that:
-
-- Combine is a framework for processing events.
-- It can be used today, effectively, with UIKit.
-- NotificationCenter, KVO, KVC 같은 기존 기술을 활용해서 events를 publish하고 보낸다.
-
-And its got three main abstractions:
-
-- Publishers - publish events.
-- Operators - publishers의 results를 mapping하고 변환한다.
-- Subscribers - publishers가 내보내는 events를 소비한다.
-
----
-
-### Links that help
-
-- [SwiftUI/Combine](https://github.com/jrasmusson/swiftui/tree/main/Combine)
-
+## MVVM Sample
+[MVVM Practice](https://github.com/gabhisekdev/MVVMDiscussion)
