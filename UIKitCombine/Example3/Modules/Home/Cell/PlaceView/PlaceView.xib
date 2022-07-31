@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="16096" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="20037" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16086"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="20020"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
-        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="PlaceView" customModule="Nearby" customModuleProvider="target">
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="PlaceView" customModule="UIKitCombine" customModuleProvider="target">
             <connections>
                 <outlet property="distanceLabel" destination="U7d-a2-RVm" id="fBg-NA-ju2"/>
                 <outlet property="placeImageView" destination="KBD-85-XFg" id="c0A-BG-RCh"/>
@@ -50,13 +50,14 @@
                         <constraint firstAttribute="trailing" secondItem="AQN-5m-9cF" secondAttribute="trailing" id="aP8-d8-SbU"/>
                     </constraints>
                 </stackView>
-                <button opaque="NO" contentMode="scaleAspectFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vCL-98-irl">
+                <button opaque="NO" contentMode="scaleAspectFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vCL-98-irl">
                     <rect key="frame" x="0.0" y="0.0" width="375" height="148"/>
                     <connections>
                         <action selector="placeViewTapped:" destination="-1" eventType="touchUpInside" id="Ge3-p1-1Hb"/>
                     </connections>
                 </button>
             </subviews>
+            <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
             <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
             <constraints>
                 <constraint firstItem="OT4-K1-yP1" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="0ml-JL-uu6"/>
@@ -70,7 +71,6 @@
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="vCL-98-irl" secondAttribute="trailing" id="nkA-EJ-KyX"/>
             </constraints>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
-            <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
             <point key="canvasLocation" x="81.5" y="-21"/>
         </view>
     </objects>

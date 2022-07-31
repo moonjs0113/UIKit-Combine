@@ -29,7 +29,7 @@ extension API {
         case .login:
             return "/api/login"
         case .register:
-            return "api/register"
+            return "/api/register"
         }
     }
 }
