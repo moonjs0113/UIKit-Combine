@@ -22,6 +22,9 @@ class ViewController: UIViewController {
         self.present(navigationController, animated: true)
     }
     
-    
-
+    @IBAction func goToUIControl(_ sender: UIButton) {
+        let navigationController = UINavigationController(rootViewController: UIControlViewViewController())
+        navigationController.navigationBar.isHidden = true
+        self.present(navigationController, animated: true)
+    }
 }

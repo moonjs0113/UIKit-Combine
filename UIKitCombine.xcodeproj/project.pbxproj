@@ -97,6 +97,7 @@
 		C7C045E02874781500A5F7BD /* Notification+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7C045DF2874781500A5F7BD /* Notification+Extension.swift */; };
 		C7C045E228747E7700A5F7BD /* TermsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7C045E128747E7700A5F7BD /* TermsViewController.swift */; };
 		C7C045E428747FC400A5F7BD /* SignupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7C045E328747FC400A5F7BD /* SignupViewController.swift */; };
+		C7D58F5F289661D20008CB61 /* UIControlViewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7D58F5E289661D20008CB61 /* UIControlViewViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -191,6 +192,7 @@
 		C7C045DF2874781500A5F7BD /* Notification+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Notification+Extension.swift"; sourceTree = "<group>"; };
 		C7C045E128747E7700A5F7BD /* TermsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TermsViewController.swift; sourceTree = "<group>"; };
 		C7C045E328747FC400A5F7BD /* SignupViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignupViewController.swift; sourceTree = "<group>"; };
+		C7D58F5E289661D20008CB61 /* UIControlViewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIControlViewViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -381,6 +383,7 @@
 				C73BC3222875733D00DC2D12 /* Example1 */,
 				C73BC3272875749C00DC2D12 /* Example2 */,
 				C78147F12875D7180022E170 /* Example3 */,
+				C7D58F5D289661B90008CB61 /* UIControl */,
 				C76586C028747723007D17E3 /* Storyboard */,
 				C76586BF28747716007D17E3 /* App */,
 			);
@@ -630,6 +633,14 @@
 			path = Extension;
 			sourceTree = "<group>";
 		};
+		C7D58F5D289661B90008CB61 /* UIControl */ = {
+			isa = PBXGroup;
+			children = (
+				C7D58F5E289661D20008CB61 /* UIControlViewViewController.swift */,
+			);
+			path = UIControl;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -756,6 +767,7 @@
 				C7698473287473110084ACFB /* SceneDelegate.swift in Sources */,
 				C7A3C42C2880678900B50EA7 /* CategoriesTableCollectionCellViewModel.swift in Sources */,
 				C73BC354287576ED00DC2D12 /* RegisterModel.swift in Sources */,
+				C7D58F5F289661D20008CB61 /* UIControlViewViewController.swift in Sources */,
 				C7B95E912875CC8E00A5C823 /* MainMenuViewModel.swift in Sources */,
 				C73BC37628757EEF00DC2D12 /* UserDataManagerProtocol.swift in Sources */,
 				C7A3C41828803E0500B50EA7 /* PlaceViewModel.swift in Sources */,

@@ -20,3 +20,9 @@
 [Reference](https://betterprogramming.pub/uikit-mvvm-combine-912c80c02262)
 
 [Reference Github](https://github.com/gabhisekdev/CombineExperiments/tree/master/MVVM%2BCombine/Nearby)
+
+## Combine + UIControl
+
+[README](README_UIControl.md)
+
+[Reference](https://medium.com/divar-mobile-engineering/create-publisher-for-uicontrol-b74ff5871787)
